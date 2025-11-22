@@ -30,7 +30,7 @@ class AudioEngine {
     }).connect(this.delay);
 
     // Increased volume from -8 to -4 for clearer melody
-    this.polySynth.volume.value = 8;
+    this.polySynth.volume.value = -4;
 
     // Drum Synths
     this.membraneSynth = new Tone.MembraneSynth({
@@ -40,14 +40,14 @@ class AudioEngine {
         envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4 },
     }).connect(this.reverb);
     // Increased volume from -5 to 0 for punchy kick
-    this.membraneSynth.volume.value = 15;
+    this.membraneSynth.volume.value = 0;
 
     this.noiseSynth = new Tone.NoiseSynth({
         noise: { type: 'white' },
         envelope: { attack: 0.005, decay: 0.1, sustain: 0 }
     }).connect(this.reverb);
     // Increased volume from -12 to -6 for crisp snares
-    this.noiseSynth.volume.value = 12;
+    this.noiseSynth.volume.value = -6;
 
     // Analyzer for Visuals
     this.analyzer = new Tone.Analyser('fft', 256);

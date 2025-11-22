@@ -14,7 +14,7 @@ export interface ParsedComposition {
   melodyEvents: MusicalEvent[];
 }
 
-export const parseCodeToMusic = (code: string): ParsedComposition => {
+export const parseCodeToMusic = (code: string, scaleKey: keyof typeof SCALES = 'DORIAN'): ParsedComposition => {
   const lines = code.split('\n');
   
   // 1. Calculate BPM
@@ -31,7 +31,7 @@ export const parseCodeToMusic = (code: string): ParsedComposition => {
 
   // 2. Generate Events
   const events: MusicalEvent[] = [];
-  const scale = SCALES.DORIAN;
+  const scale = SCALES[scaleKey];
   
   // We track a virtual "transport time" in 16th notes
   let currentTime16ths = 0;

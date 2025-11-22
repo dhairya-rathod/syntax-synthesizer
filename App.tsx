@@ -3,14 +3,15 @@ import CodeEditor from './components/CodeEditor';
 import Visualizer from './components/Visualizer';
 import { audioEngine } from './services/audioEngine';
 import { parseCodeToMusic } from './services/codeParser';
-import { DEFAULT_CODE } from './constants';
-import { Play, Square, RotateCcw, Zap, Code2, Music2, Activity } from 'lucide-react';
+import { DEFAULT_CODE, SCALES } from './constants';
+import { Play, Square, RotateCcw, Zap, Code2, Music2, Activity, ChevronDown } from 'lucide-react';
 
 function App() {
   const [code, setCode] = useState(DEFAULT_CODE);
   const [isPlaying, setIsPlaying] = useState(false);
   const [bpm, setBpm] = useState(0);
   const [eventCount, setEventCount] = useState(0);
+  const [selectedScale, setSelectedScale] = useState<keyof typeof SCALES>('DORIAN');
 
   const handlePlay = async () => {
     if (isPlaying) {
@@ -20,7 +21,7 @@ function App() {
       // Initialize audio context on first interaction
       await audioEngine.initialize();
       
-      const composition = parseCodeToMusic(code);
+      const composition = parseCodeToMusic(code, selectedScale);
       setBpm(composition.bpm);
       setEventCount(composition.melodyEvents.length);
       
@@ -34,6 +35,15 @@ function App() {
     setIsPlaying(false);
     setCode(DEFAULT_CODE);
   };
+
+  // Live update when scale changes while playing
+  useEffect(() => {
+    if (isPlaying) {
+      const composition = parseCodeToMusic(code, selectedScale);
+      // We restart the part with new notes
+      audioEngine.play(composition);
+    }
+  }, [selectedScale, isPlaying, code]);
 
   // Stop audio if component unmounts
   useEffect(() => {
@@ -89,7 +99,28 @@ function App() {
                  <Visualizer isPlaying={isPlaying} />
             </div>
             
-            {/* Overlay Stats */}
+            {/* Scale Selector - Top Left */}
+            <div className="absolute top-4 left-4 z-10">
+               <div className="flex items-center gap-2 bg-black/60 backdrop-blur border border-slate-700 rounded-lg px-3 py-1.5 hover:border-emerald-500/50 transition-colors">
+                  <label className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">Scale</label>
+                  <div className="relative flex items-center">
+                      <select 
+                        value={selectedScale}
+                        onChange={(e) => setSelectedScale(e.target.value as keyof typeof SCALES)}
+                        className="bg-transparent text-emerald-400 text-xs font-bold font-mono outline-none cursor-pointer appearance-none pr-6"
+                      >
+                         {Object.keys(SCALES).map(scale => (
+                            <option key={scale} value={scale} className="bg-slate-900 text-slate-300">
+                               {scale}
+                            </option>
+                         ))}
+                      </select>
+                      <ChevronDown className="w-3 h-3 text-emerald-500 absolute right-0 pointer-events-none" />
+                  </div>
+               </div>
+            </div>
+
+            {/* Overlay Stats - Top Right */}
             <div className="absolute top-4 right-4 flex flex-col gap-2 items-end pointer-events-none">
                 {isPlaying && (
                     <>
